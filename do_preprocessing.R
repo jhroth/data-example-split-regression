@@ -113,8 +113,8 @@ apply(df.combined, 2, function(x) sum(is.na(x)))
 table(complete.cases(df.combined)) ## 16468 of 93676 observations (17.6%) have at least one missing value
 df.combined$complete.case.binary <- as.numeric(complete.cases(df.combined))
 names.complete.case.predictors <- c("REGION", "BMDFLAG", "LANG", "F45MULTI", "F45MVMIN", "F45IRON", "F45STRES")
-logistic.model.complete.case <- glm(NamesToGlmFormula(name.response="complete.case.binary", names.features=names.complete.case.predictors, include.intercept=TRUE),
-                              family="binomial", data=df.combined)
+logistic.model.complete.case <-  glm(as.formula(paste0("complete.case.binary ~ ", paste0(names.complete.case.predictors, collapse=" + "))),
+                                                  family="binomial", data=df.combined)
 coef(logistic.model.complete.case)
 predictions.logistic.complete.case <- predict(logistic.model.complete.case, newdata=df.combined, type="response")
 summary(predictions.logistic.complete.case) # range is (0.46, 0.90)
@@ -139,18 +139,18 @@ names.influencing.rule <- names.influencing.treatment[!(names.influencing.treatm
 # SPLIT THE DATA
 df.combined.complete.cases <- df.combined[complete.cases(df.combined[, c(name.outcome, name.treatment, names.influencing.rule, names.influencing.treatment.only)]), ]
 set.seed(123)
-df.combined.with.split <- split.data(data=df.combined.complete.cases,
+df.combined.with.split <- SplitData(data=df.combined.complete.cases,
                                                 n.sets=3, 
                                                 split.proportions=c(0.50, 0.25, 0.25))
 df.combined.complete.cases <- df.combined[complete.cases(df.combined), ]
-training.data <-  df.combined.with.split %>% filter(partition == "training")
+development.data <-  df.combined.with.split %>% filter(partition == "development")
 validation.data <-  df.combined.with.split %>% filter(partition == "validation")
-test.data <-  df.combined.with.split %>% filter(partition == "test")
-dim(training.data)
+evaluation.data <-  df.combined.with.split %>% filter(partition == "evaluation")
+dim(development.data)
 dim(validation.data)
-dim(test.data)
+dim(evaluation.data)
 
 ## SAVE FORMATTED DATA FOR ANALYSIS
-save(df.combined, df.combined.with.split, training.data, validation.data, test.data, 
+save(df.combined, df.combined.with.split, development.data, validation.data, evaluation.data, 
        name.outcome, name.treatment, names.influencing.treatment, names.influencing.treatment.only, names.influencing.rule, names.complete.case.predictors,
        file="Results/datasets_for_data_example_with_missingness_weights.RData")
