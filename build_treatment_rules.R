@@ -6,7 +6,7 @@ library(glmnet)
 # load data
 load("Data/datasets_for_data_example_with_missingness_weights.RData")
 # set parameters
-name.outcome <- "no_BREAST_after_10_yr" #"no_CHD_after_10_yr"
+name.outcome <- "no_CHD_after_10_yr" #"no_BREAST_after_10_yr"
 bootstrap.CI.replications <- 100
 
 # develop treatment rules on development dataset and compare performance on independent validation dataset
